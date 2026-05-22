@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APG Bochum Produktionssystem</title>
+
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+
+<meta name="theme-color" content="#0f172a">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="topbar">
+    <div class="logo">APG BOCHUM</div>
+    <div class="status online">SYSTEM ONLINE</div>
+</div>
+
+<div class="container">
+
+<div class="card login-card">
+<h2>Benutzer Login</h2>
+
+<input type="text" id="user" placeholder="Benutzername">
+<input type="password" id="pass" placeholder="Passwort">
+
+<button onclick="login()">Anmelden</button>
+
+<div id="loginStatus"></div>
+</div>
+
+<div class="card">
+<h2>Schichtinformationen</h2>
+
+<div class="grid-3">
+<select id="schicht">
+<option>Schicht A</option>
+<option selected>Schicht B</option>
+<option>Schicht C</option>
+</select>
+
+<select id="schichtType">
+<option>Frühschicht</option>
+<option selected>Spätschicht</option>
+<option>Nachtschicht</option>
+</select>
+
+<input type="date" id="datum">
+</div>
+
+<select id="anlage">
+<option value="PUR1">PUR1</option>
+<option value="PUR2">PUR2</option>
+<option value="PUR3">PUR3</option>
+<option value="PUR4">PUR4</option>
+<option value="IM1">IM1</option>
+<option value="IM2">IM2</option>
+<option value="COM">COM</option>
+</select>
+</div>
+
+<div class="card">
+<h2>Mitarbeiter</h2>
+
+<div class="worker-grid">
+<button onclick="toggleWorker(this)">Keskin</button>
+<button onclick="toggleWorker(this)">Anderwald</button>
+<button onclick="toggleWorker(this)">Kilic</button>
+<button onclick="toggleWorker(this)">Bayrakli</button>
+<button onclick="toggleWorker(this)">Maafi</button>
+<button onclick="toggleWorker(this)">Sahin</button>
+</div>
+
+<div id="selectedWorkers"></div>
+</div>
+
+<div class="card">
+<h2>Produktion</h2>
+
+<div id="artikelContainer"></div>
+
+<button class="add-btn" onclick="addArtikel()">
++ Artikel hinzufügen
+</button>
+
+<div id="comTracker" class="warning-box" style="display:none;">
+Gesamtzeit muss genau 480 Minuten betragen
+</div>
+
+<button class="send-btn" onclick="sendReport()">
+Bericht senden
+</button>
+</div>
+
+<div class="dashboard-grid">
+
+<div class="card">
+<h2>Produktion Dashboard</h2>
+<canvas id="productionChart"></canvas>
+</div>
+
+<div class="card">
+<h2>Ausschuss Analyse</h2>
+<canvas id="errorChart"></canvas>
+</div>
+
+</div>
+
+<div class="card">
+<h2>Admin Dashboard</h2>
+
+<div class="admin-stats">
+<div class="stat-box">
+<h3>Produktion</h3>
+<p>12.450</p>
+</div>
+
+<div class="stat-box">
+<h3>Ausschuss</h3>
+<p>3.2%</p>
+</div>
+
+<div class="stat-box">
+<h3>Störung</h3>
+<p>85 Min</p>
+</div>
+
+<div class="stat-box">
+<h3>OEE</h3>
+<p>91%</p>
+</div>
+</div>
+</div>
+
+</div>
+
+<script src="js/app.js"></script>
+
+</body>
+</html>
