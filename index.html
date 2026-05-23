@@ -1,69 +1,120 @@
 <!DOCTYPE html>
-            </select>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schicht B</title>
 
-        </div>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
 
-        <div class="form-card">
-            <h3>Mitarbeiter</h3>
+  <meta name="theme-color" content="#111827">
+</head>
+<body>
 
-            <button class="sub-btn" onclick="openWorkerOverlay()">
-                + Mitarbeiter
-            </button>
+  <header class="topbar">
+    <h1>SCHICHT B</h1>
+    <div id="currentDate"></div>
+  </header>
 
-            <div class="worker-container" id="workerDisplayContainer"></div>
-        </div>
+  <main class="container">
 
-        <div class="form-card">
+    <section class="card">
+      <h2>Mitarbeiter</h2>
 
-            <h3>Produktion</h3>
+      <input type="text" id="mitarbeiter" placeholder="Mitarbeiter Name">
 
-            <div id="artikelContainer"></div>
+      <select id="schicht">
+        <option>Frühschicht</option>
+        <option>Spätschicht</option>
+        <option>Nachtschicht</option>
+      </select>
+    </section>
 
-            <button id="addArtikelBtn"
-                    class="add-artikel-dash-btn"
-                    onclick="addArtikel()">
-                + Artikel hinzufügen
-            </button>
 
-        </div>
+    <section class="card">
+      <h2>Produktion</h2>
 
-        <button id="mainSendBtn"
-                class="btn-primary"
-                onclick="processReport()"
-                disabled>
-            Formular prüfen
-        </button>
+      <select id="anlage">
+        <option>PUR1</option>
+        <option>PUR2</option>
+        <option>PUR3</option>
+        <option>PUR4</option>
+        <option>PUR5</option>
+        <option>PUR6</option>
+        <option>PUR7</option>
+        <option>PUR8</option>
+        <option>PUR9</option>
+        <option>IM1</option>
+        <option>IM2</option>
+        <option>IM3</option>
+        <option>IM4</option>
+        <option>IM5</option>
+        <option>CIM1</option>
+        <option>Compound</option>
+      </select>
 
-    </div>
+      <select id="formtraeger">
+        <option>Formträger 1</option>
+        <option>Formträger 2</option>
+        <option>Formträger 3</option>
+        <option>Formträger 4</option>
+        <option>Formträger 5</option>
+        <option>Formträger 6</option>
+      </select>
 
-</div>
+      <input type="text" id="compound" placeholder="Compound">
 
-<div class="overlay" id="workerOverlay">
+      <input type="text" id="werkzeug" placeholder="Werkzeug">
 
-    <div class="overlay-content">
+      <input type="text" id="artikelnummer" placeholder="Artikelnummer">
 
-        <h4>Mitarbeiter wählen</h4>
+      <input type="number" id="gutteile" placeholder="Gutteile">
 
-        <div id="workerList" class="worker-list"></div>
+      <input type="number" id="ausschuss" placeholder="Ausschuss">
+    </section>
 
-        <input type="text" id="manualWorker">
 
-        <button class="btn-primary" onclick="addManualWorker()">
-            Hinzufügen
-        </button>
+    <section class="card">
+      <h2>Störung</h2>
 
-        <button class="sub-btn" onclick="closeOverlay()">
-            Schließen
-        </button>
+      <select id="stoerungTyp">
+        <option>Maschinenstörung</option>
+        <option>Werkzeugbruch</option>
+        <option>Materialmangel</option>
+        <option>Wartung</option>
+        <option>Qualitätsproblem</option>
+      </select>
 
-    </div>
+      <input type="number" id="stoerungMinuten" placeholder="Minuten">
 
-</div>
+      <button class="secondary-btn" onclick="addStoerung()">
+        + Störung Hinzufügen
+      </button>
 
-<script src="offline.js"></script>
-<script src="workers.js"></script>
-<script src="dashboard.js"></script>
-<script src="app.js"></script>
+      <div id="stoerungList"></div>
+    </section>
 
+
+    <section class="card">
+      <h2>Werkzeugwechsel</h2>
+
+      <input type="number" id="werkzeugwechsel" placeholder="Dauer in Minuten">
+    </section>
+
+
+    <section class="button-area">
+      <button class="save-btn" onclick="saveData()">
+        Speichern
+      </button>
+
+      <button class="reset-btn" onclick="resetForm()">
+        Reset
+      </button>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
