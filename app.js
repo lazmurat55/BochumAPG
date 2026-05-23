@@ -1,147 +1,261 @@
-:root {
-    --bg-main: #0f172a;
-    --bg-card: #1e293b;
-    --bg-input: #0f172a;
-    --border-color: #334155;
-    --primary: #3b82f6;
-    --success: #10b981;
-    --danger: #f43f5e;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-}
+const scriptURL = "YOUR_GOOGLE_SCRIPT_URL";
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Segoe UI, sans-serif;
-}
+let currentSchicht = "B";
+let selectedStaff = [];
+let isSending = false;
 
-body {
-    background: var(--bg-main);
-    color: var(--text-main);
-    padding: 20px;
-}
+const workerData = {
+    A: ["Max", "Ali"],
+    B: ["Keskin", "Mustafa"],
+    C: ["Ahmet", "Mehmet"]
+};
 
-.container {
-    max-width: 900px;
-    margin: auto;
-}
+window.onload = () => {
 
-.form-card {
-    background: var(--bg-card);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-    border: 1px solid var(--border-color);
-}
+    setToday();
 
-input,
-select,
-button {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-input);
-    color: white;
-    margin-top: 8px;
-}
-
-button {
-    cursor: pointer;
-}
-
-.btn-primary {
-    background: var(--primary);
-    border: none;
-}
-
-.worker-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 14px;
-}
-
-.selected-worker {
-    background: rgba(59,130,246,0.2);
-    border: 1px solid var(--primary);
-    padding: 8px 12px;
-    border-radius: 30px;
-}
-
-.artikel-row {
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 20px;
-}
-
-.code-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.status-ok {
-    background: rgba(16,185,129,0.2);
-    color: #10b981;
-    padding: 10px;
-    border-radius: 10px;
-    margin-top: 10px;
-}
-
-.status-error {
-    background: rgba(244,63,94,0.2);
-    color: #f43f5e;
-    padding: 10px;
-    border-radius: 10px;
-    margin-top: 10px;
-}
-
-.overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-}
-
-.overlay-content {
-    background: var(--bg-card);
-    width: 90%;
-    max-width: 400px;
-    padding: 20px;
-    border-radius: 14px;
-}
-
-.worker-list {
-    max-height: 300px;
-    overflow: auto;
-    margin: 15px 0;
-}
-
-.worker-opt {
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    margin-bottom: 8px;
-    cursor: pointer;
-}
-
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-@media(max-width:600px) {
-
-    .code-row {
-        flex-direction: column;
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js');
     }
 
+};
+
+function setToday() {
+
+    const today = new Date();
+
+    document.getElementById('datum').value =
+        today.toISOString().split('T')[0];
 }
+
+function logout() {
+    location.reload();
+}
+
+async function checkLogin() {
+
+    const u = sanitize(
+        document.getElementById('userInp').value
+    );
+
+    const p = sanitize(
+        document.getElementById('passInp').value
+    );
+
+    const err = document.getElementById('loginError');
+
+    if(!u || !p) {
+        err.innerText = 'Bitte Felder ausfüllen';
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `${scriptURL}?action=verifyLogin&user=${u}&pass=${p}`
+        );
+
+        const result = await response.json();
+
+        if(result.success) {
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+
+            document.getElementById('currentUserDisplay').innerText =
+                `👤 ${u}`;
+
+        } else {
+            err.innerText = 'Falscher Login';
+        }
+
+    } catch(e) {
+
+        err.innerText = 'Server nicht erreichbar';
+
+    }
+}
+
+function sanitize(text) {
+
+    return text
+        .replace(/[<>]/g, '')
+        .trim();
+}
+
+function setSchicht(s) {
+    currentSchicht = s;
+}
+
+function openWorkerOverlay() {
+
+    const list = document.getElementById('workerList');
+
+    list.innerHTML = workerData[currentSchicht]
+        .map(w => `
+            <div class="worker-opt"
+                 onclick="addStaff('${w}')">
+                ${w}
+            </div>
+        `)
+        .join('');
+
+    document.getElementById('workerOverlay').style.display = 'flex';
+}
+
+function closeOverlay() {
+    document.getElementById('workerOverlay').style.display = 'none';
+}
+
+function addStaff(name) {
+
+    if(!selectedStaff.includes(name)) {
+        selectedStaff.push(name);
+    }
+
+    renderStaff();
+
+    closeOverlay();
+}
+
+function addManualWorker() {
+
+    const inp = document.getElementById('manualWorker');
+
+    const clean = sanitize(inp.value);
+
+    if(clean) {
+        selectedStaff.push(clean);
+    }
+
+    inp.value = '';
+
+    renderStaff();
+}
+
+function renderStaff() {
+
+    document.getElementById('workerDisplayContainer').innerHTML =
+        selectedStaff.map(w => `
+            <div class="selected-worker">
+                ${w}
+            </div>
+        `).join('');
+
+    liveCheck();
+}
+
+function onAnlageChange(value) {
+
+    if(value) {
+        addArtikel();
+    }
+}
+
+function addArtikel() {
+
+    const id = crypto.randomUUID();
+
+    const row = document.createElement('div');
+
+    row.className = 'artikel-row';
+
+    row.dataset.id = id;
+
+    row.innerHTML = `
+
+        <input type="text"
+               class="art-name"
+               placeholder="Artikelname"
+               oninput="debouncedCheck()">
+
+        <div class="code-row">
+
+            <input type="number"
+                   class="gut"
+                   placeholder="Gut"
+                   oninput="debouncedCheck()">
+
+            <input type="number"
+                   class="aus"
+                   placeholder="Ausschuss"
+                   oninput="debouncedCheck()">
+
+        </div>
+
+        <div class="status" id="status_${id}"></div>
+
+    `;
+
+    document.getElementById('artikelContainer').appendChild(row);
+
+    liveCheck();
+}
+
+let debounceTimer;
+
+function debouncedCheck() {
+
+    clearTimeout(debounceTimer);
+
+    debounceTimer = setTimeout(() => {
+        liveCheck();
+    }, 300);
+}
+
+function liveCheck() {
+
+    const btn = document.getElementById('mainSendBtn');
+
+    let valid = true;
+
+    if(selectedStaff.length === 0) {
+        valid = false;
+    }
+
+    document.querySelectorAll('.artikel-row').forEach(row => {
+
+        const art = row.querySelector('.art-name').value;
+        const gut = row.querySelector('.gut').value;
+
+        const status = row.querySelector('.status');
+
+        if(!art || !gut) {
+
+            valid = false;
+
+            status.innerHTML = `
+                <div class="status-error">
+                    Daten fehlen
+                </div>
+            `;
+
+        } else {
+
+            status.innerHTML = `
+                <div class="status-ok">
+                    OK
+                </div>
+            `;
+        }
+
+    });
+
+    btn.disabled = !valid;
+
+    btn.innerText = valid
+        ? 'Daten senden'
+        : 'Formular prüfen';
+}
+
+async function processReport() {
+
+    if(isSending) return;
+
+    isSending = true;
+
+    const btn = document.getElementById('mainSendBtn');
+
+    btn.disabled = true;
+
+    btn.innerText =
