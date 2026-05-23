@@ -1,4 +1,49 @@
 <!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>APG Bochum BDE</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+
+    <meta name="theme-color" content="#0f172a">
+</head>
+<body>
+
+<div class="container" id="mainContainer">
+
+    <div id="loginScreen" class="form-card">
+        <h2>APG BOCHUM LOGIN</h2>
+
+        <label>Benutzername</label>
+        <input type="text" id="userInp">
+
+        <label>Passwort</label>
+        <input type="password" id="passInp">
+
+        <button class="btn-primary" onclick="checkLogin()">
+            ANMELDEN
+        </button>
+
+        <div id="loginError"></div>
+    </div>
+
+    <div id="mainApp" style="display:none;">
+
+        <div class="topbar">
+            <span id="currentUserDisplay"></span>
+            <button onclick="logout()">Abmelden</button>
+        </div>
+
+        <div class="form-card">
+
+            <h3>Schicht</h3>
+
+            <div class="schicht-group">
+                <button class="schicht-btn" onclick="setSchicht('A')">A</button>
                 <button class="schicht-btn active" onclick="setSchicht('B')">B</button>
                 <button class="schicht-btn" onclick="setSchicht('C')">C</button>
             </div>
@@ -78,4 +123,7 @@
 <script src="workers.js"></script>
 <script src="dashboard.js"></script>
 <script src="app.js"></script>
+
+</body>
+</html>
 
