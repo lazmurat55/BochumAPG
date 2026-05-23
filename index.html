@@ -1,1 +1,81 @@
+<!DOCTYPE html>
+                <button class="schicht-btn active" onclick="setSchicht('B')">B</button>
+                <button class="schicht-btn" onclick="setSchicht('C')">C</button>
+            </div>
+
+            <label>Datum</label>
+            <input type="date" id="datum">
+
+            <label>Anlage</label>
+            <select id="anlage" onchange="onAnlageChange(this.value)">
+                <option value="">Bitte wählen</option>
+                <option value="PUR1">PUR1</option>
+                <option value="PUR2">PUR2</option>
+                <option value="PUR3">PUR3</option>
+                <option value="COM">COM</option>
+            </select>
+
+        </div>
+
+        <div class="form-card">
+            <h3>Mitarbeiter</h3>
+
+            <button class="sub-btn" onclick="openWorkerOverlay()">
+                + Mitarbeiter
+            </button>
+
+            <div class="worker-container" id="workerDisplayContainer"></div>
+        </div>
+
+        <div class="form-card">
+
+            <h3>Produktion</h3>
+
+            <div id="artikelContainer"></div>
+
+            <button id="addArtikelBtn"
+                    class="add-artikel-dash-btn"
+                    onclick="addArtikel()">
+                + Artikel hinzufügen
+            </button>
+
+        </div>
+
+        <button id="mainSendBtn"
+                class="btn-primary"
+                onclick="processReport()"
+                disabled>
+            Formular prüfen
+        </button>
+
+    </div>
+
+</div>
+
+<div class="overlay" id="workerOverlay">
+
+    <div class="overlay-content">
+
+        <h4>Mitarbeiter wählen</h4>
+
+        <div id="workerList" class="worker-list"></div>
+
+        <input type="text" id="manualWorker">
+
+        <button class="btn-primary" onclick="addManualWorker()">
+            Hinzufügen
+        </button>
+
+        <button class="sub-btn" onclick="closeOverlay()">
+            Schließen
+        </button>
+
+    </div>
+
+</div>
+
+<script src="offline.js"></script>
+<script src="workers.js"></script>
+<script src="dashboard.js"></script>
+<script src="app.js"></script>
 
