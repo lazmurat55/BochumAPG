@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>APG Bochum - Betriebsdatenerfassung | Produktion & Fehler</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #0f172a;
+            --border-color: #334155;
+            --primary: #3b82f6;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --orange-bright: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --dash-danger: #ff4d6d;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: transparent;
+            transition: max-width 0.3s ease;
+        }
+
+        .container.wide {
+            max-width: 1280px;
+        }
+
+        .app-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 22px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+        }
+
+        h3 {
+            margin-bottom: 18px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        button {
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: #334155;
+            color: var(--text-muted);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .schicht-group, .type-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .schicht-btn, .type-btn {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 40px;
+            color: var(--text-muted);
+            font-weight: 600;
+            transition: 0.1s;
+        }
+
+        .schicht-btn.active, .type-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .active-filter {
+            background: var(--orange-bright) !important;
+            color: white !important;
+            border-color: var(--orange-bright) !important;
+        }
+
+        .worker-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+            min-height: 55px;
+            border: 1px dashed var(--border-color);
+            padding: 12px;
+            border-radius: 18px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .selected-worker {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--primary);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .ft-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .ft-btn {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: center;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .ft-btn.active {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .com-tracker-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 14px;
+            margin: 16px 0 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Artikel Karte */
+        .artikel-row {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+
+        .code-row-container {
+            background: #0f172a80;
+            border-radius: 16px;
+            padding: 12px;
+            margin: 14px 0;
+            border: 1px solid #334155;
+        }
+
+        .code-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        .code-row select {
+            flex: 6;
+            padding: 10px;
+        }
+
+        .code-row input {
+            flex: 2;
+            text-align: center;
+        }
+
+        .code-row .remove-row-btn {
+            flex: 0.4;
+            background: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #94a3b8;
+            width: auto;
+            padding: 0;
+        }
+
+        .code-row .remove-row-btn:hover {
+            color: var(--danger);
+        }
+
+        .sonstige-input {
+            display: none;
+            margin: 8px 0 12px 0;
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: 12px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--danger);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 40px;
+            margin: 12px 0 6px;
+        }
+
+        .status-badge.ok {
+            background: var(--success);
+        }
+
+        .code-action-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .btn-add-aus {
+            background: #1e3a8a;
+            color: white;
+            border: none;
+        }
+
+        .btn-add-stoer {
+            background: #4c1d95;
+            color: white;
+        }
+
+        .add-artikel-dash-btn {
+            background: transparent;
+            border: 2px dashed #475569;
+            color: #60a5fa;
+            padding: 14px;
+            border-radius: 60px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .overlay-content {
+            background: var(--bg-card);
+            width: 90%;
+            max-width: 450px;
+            padding: 24px;
+            border-radius: 28px;
+            border: 1px solid var(--border-color);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .worker-opt {
+            padding: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .management-box {
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px solid var(--orange-bright);
+            border-radius: 20px;
+            padding: 18px;
+            margin-top: 12px;
+        }
+
+        .managers-list {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+
+        .delete-manager-btn {
+            color: var(--danger);
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .refresh-btn {
+            background: #334155;
+            padding: 8px 16px;
+            width: auto;
+            border-radius: 30px;
+            gap: 8px;
+        }
+
+        #reportsContainer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            max-height: 650px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 900px) {
+            #reportsContainer { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            #reportsContainer { grid-template-columns: 1fr; }
+        }
+
+        .report-box {
+            background: var(--bg-input);
+            border-radius: 20px;
+            padding: 16px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .badge-origin {
+            background: var(--primary);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="mainContainer">
+    <!-- LOGIN -->
+    <div id="loginScreen" class="form-card" style="max-width: 450px; margin: 40px auto;">
+        <h2 style="text-align:center;">🔐 APG BOCHUM</h2>
+        <label>Benutzername</label>
+        <input type="text" id="userInp" placeholder="Mitarbeiter">
+        <label>Passwort</label>
+        <input type="password" id="passInp" placeholder="****">
+        <button class="btn-primary" style="margin-top: 24px;" onclick="checkLogin()">ANMELDEN</button>
+        <div id="loginError" style="color:var(--danger); margin-top: 16px; text-align:center; display:none;"></div>
+    </div>
+
+    <!-- MAIN APP (Produktion) -->
+    <div id="mainApp" class="app-wrapper" style="display:none;">
+        <div class="form-card" style="display: flex; justify-content: space-between; align-items: center;">
+            <span id="currentUserDisplay" style="font-weight: bold; color: #10b981;">👤</span>
+            <button onclick="location.reload()" style="width: auto; background: #334155;">Abmelden</button>
+        </div>
+        <div class="form-card">
+            <h3>📅 Schicht & Datum</h3>
+            <div class="schicht-group">
+                <button class="schicht-btn" id="mSchichtA" onclick="setSchicht('A')">A</button>
+                <button class="schicht-btn active" id="mSchichtB" onclick="setSchicht('B')">B</button>
+                <button class="schicht-btn" id="mSchichtC" onclick="setSchicht('C')">C</button>
+            </div>
+            <div class="type-group">
+                <button class="type-btn" id="tFrueh" onclick="setSchichtType('Frühschicht')">Früh</button>
+                <button class="type-btn active" id="tSpaet" onclick="setSchichtType('Spätschicht')">Spät</button>
+                <button class="type-btn" id="tNacht" onclick="setSchichtType('Nachtschicht')">Nacht</button>
+            </div>
+            <label>Datum</label>
+            <input type="date" id="datum">
+        </div>
+
+        <div class="form-card">
+            <h3>👥 Mitarbeiter</h3>
+            <button class="sub-btn" style="background: #1e293b; border:1px solid #3b82f6;" onclick="openWorkerOverlay()">+ Mitarbeiter hinzufügen</button>
+            <div class="worker-container" id="workerDisplayContainer"></div>
+        </div>
+
+        <div class="form-card">
+            <h3>⚙️ Anlage</h3>
+            <select id="anlage" onchange="onAnlageChange(this.value)">
+                <option value="">-- auswählen --</option>
+                <option value="PUR1">PUR 1</option><option value="PUR2">PUR 2</option><option value="PUR3">PUR 3</option>
+                <option value="PUR4">PUR 4</option><option value="PUR5">PUR 5</option><option value="PUR6">PUR 6</option>
+                <option value="PUR7">PUR 7</option><option value="PUR8">PUR 8</option><option value="PUR9">PUR 9</option>
+                <option value="CIM1">CIM 1</option><option value="IM1">IM 1</option><option value="IM2">IM 2</option>
+                <option value="IM3">IM 3</option><option value="IM4">IM 4</option><option value="IM5">IM 5</option><option value="COM">COM</option>
+            </select>
+            <div id="comTracker" class="com-tracker-box" style="display:none;">⏱️ COM Konto: 0 / 480 Min</div>
+            <div id="ftBox" style="display:none; margin-top: 15px;">
+                <label>Formträger (Mehrfach)</label>
+                <div class="ft-grid">
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT1</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT2</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT3</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT4</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT5</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT6</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h3>📦 Produktion & Fehler</h3>
+            <div id="artikelContainer"></div>
+            <button id="addArtikelBtn" class="add-artikel-dash-btn" onclick="addArtikel()" disabled>+ Artikel hinzufügen</button>
+        </div>
+        <button id="mainSendBtn" class="btn-primary" style="padding: 16px; font-size: 1rem;" disabled>⚠️ Bitte vollständig ausfüllen</button>
+    </div>
+
+    <!-- ADMIN / SCHICHTLEITER PANEL -->
+    <div id="adminPanel" class="form-card" style="display:none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span id="adminUserDisplay" style="font-weight:bold;color:var(--orange-bright);"></span>
+            <button onclick="location.reload()" style="width:auto;background:#f43f5e;">Logout</button>
+        </div>
+        <div id="rightsManagementBox" class="management-box" style="display:none;">
+            <h4>👑 Rechteverwaltung</h4>
+            <select id="rightsSelect"></select>
+            <label>Schicht zuweisen</label>
+            <select id="assignedSchichtSelect"><option value="A">A</option><option value="B" selected>B</option><option value="C">C</option></select>
+            <button class="btn-primary" style="margin-top: 12px; background: #10b981;" onclick="grantSchichtleiterRights()">Berechtigung speichern</button>
+            <div id="currentManagersList" class="managers-list"></div>
+        </div>
+        <h3>📊 Dashboard</h3>
+        <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+            <button id="manualRefreshBtn" class="refresh-btn" onclick="manualRefreshDashboard()">🔄 Aktualisieren</button>
+            <span id="refreshStatus" style="font-size:12px; color:#94a3b8;"></span>
+        </div>
+        <div id="adminFilterGroup" style="display: flex; gap: 12px; margin-bottom: 16px;">
+            <button class="schicht-btn filter-btn" id="fltA" onclick="filterSchicht('A')">Schicht A</button>
+            <button class="schicht-btn filter-btn" id="fltB" onclick="filterSchicht('B')">Schicht B</button>
+            <button class="schicht-btn filter-btn" id="fltC" onclick="filterSchicht('C')">Schicht C</button>
+        </div>
+        <div id="reportsContainer">Daten werden geladen...</div>
+    </div>
+</div>
+
+<div class="overlay" id="workerOverlay">
+    <div class="overlay-content">
+        <h4>Personal auswählen</h4>
+        <div id="workerList" class="worker-list"></div>
+        <input type="text" id="manualWorker" placeholder="Manueller Name">
+        <button class="btn-primary" style="margin: 8px 0;" onclick="addManualWorker()">Hinzufügen</button>
+        <button class="sub-btn" onclick="closeOverlay()">Schließen</button>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymekHauHN-LjNtYeuWjlLjSgB-x65fklMahH6aJFoVoc8T2_L5qEUkrhHZzddzt2HbsQ/exec";
+    let currentSchicht = "B";
+    let currentSchichtType = "Spätschicht";
+    let selectedStaff = [];
+    let loggedInUser = "";
+    let superAdmin = "Keskin";
+    let schichtLeiterDb = {};
+    let activeFilterSchicht = "B";
+
+    // Lade gespeicherte Schichtleiter
+    if(localStorage.getItem('apg_schichtleiter_db')) schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db'));
+
+    const workerData = {
+        "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
+        "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
+        "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin", "Gertz S.", "Schönborn Ch.", "Fortes Ch.", "Sakaguchi M.", "Mercan M.", "Krämer Ch.", "Juretzka T.", "Kumbara E.", "Skupio D.", "Skrago T.", "Bah A.", "Kaya A.", "Jdea A.", "Toure A.", "Schneider D.", "Tchaleu Bertrand", "Keskinmus", "Klomrit", "Garcia"]
+    };
+
+    const codeCatalog = {
+        PUR: { aus: ["6-2-01 Temperatur zu niedrig", "6-2-02 Schaum haftet nicht", "6-2-03 Einlegefehler", "6-2-04 Schussabbruch", "6-2-05 CIM nicht voll", "6-2-06 Lippe gerissen", "6-2-07 CIM gerissen", "7-2-01 Nacharbeit", "Sonstige"], stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-2-01 Ungepl. Inst. WZ", "4-2-02 Ungepl. Inst. Masch", "4-2-03 Poly/Iso Überdruck", "4-2-04 Mischkopf nio", "4-2-05 Fehler Lichtschr.", "4-2-06 Trennmittelpist.", "4-2-07 Formträger Prob.", "4-2-08 Reinigung WZ", "4-2-09 Not Aus", "5-2-01 Logistik Mangel", "5-2-02 Keine Teile", "5-2-04 Wartezeit Einrichter", "5-2-10 Poly/Iso leer", "Sonstige"] },
+        Spritz: { aus: ["6-1-01 Anfahrschrott", "6-1-02 Mat-Umst.", "6-1-03 CIM n.voll", "6-1-04 CIM gerissen", "6-1-06 Einfallstellen", "6-1-07 Brandstellen", "6-1-08 Silberstreifen", "Sonstige"], stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-1-01 Ungepl. Inst. WZ", "4-1-02 Ungepl. Inst. Masch", "4-1-03 Mat-Förderung Prob.", "4-1-04 Probleme Dosier.", "4-1-05 Probleme Schließeinh.", "4-1-06 Teileentnahme Prob.", "4-1-07 Probleme WZ-Heizung", "4-1-08 Probleme Beflamm.", "5-1-01 Mat-Mangel", "5-1-03 Wartezeit Einrichter", "Sonstige"] },
+        COM: { aus: ["6-3-01 Anfahrschrott", "6-3-02 Mat-Fehler", "Sonstige"], stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-3-01 Messer schleifen", "4-3-02 Ungepl. Inst. Masch", "4-3-04 Silowechsel", "5-3-01 Mat-Mangel", "5-3-05 Feueralarm", "Sonstige"] }
+    };
+
+    function setInitialToday() { document.getElementById('datum').value = new Date().toISOString().slice(0,10); }
+    function openWorkerOverlay() { document.getElementById('workerList').innerHTML = workerData[currentSchicht].map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`).join(''); document.getElementById('workerOverlay').style.display = 'flex'; }
+    function closeOverlay() { document.getElementById('workerOverlay').style.display = 'none'; }
+    function addStaff(name) { if(!selectedStaff.includes(name)) selectedStaff.push(name); renderStaff(); closeOverlay(); }
+    function addManualWorker() { let v = document.getElementById('manualWorker').value.trim(); if(v) { addStaff(v); document.getElementById('manualWorker').value = ''; } closeOverlay(); }
+    function renderStaff() { document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => `<div class="selected-worker">${s} <span style="cursor:pointer; color:#f43f5e;" onclick="removeStaff('${s}')">✕</span></div>`).join(''); liveCheck(); }
+    function removeStaff(n) { selectedStaff = selectedStaff.filter(x => x !== n); renderStaff(); }
+    function setSchicht(s) { currentSchicht = s; document.querySelectorAll('.schicht-btn').forEach(b => b.classList.remove('active')); document.getElementById('mSchicht'+s)?.classList.add('active'); selectedStaff = []; renderStaff(); if(s==="A") setSchichtType('Frühschicht'); if(s==="B") setSchichtType('Spätschicht'); if(s==="C") setSchichtType('Nachtschicht'); }
+    function setSchichtType(t) { currentSchichtType = t; document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active')); if(t==='Frühschicht') document.getElementById('tFrueh')?.classList.add('active'); if(t==='Spätschicht') document.getElementById('tSpaet')?.classList.add('active'); if(t==='Nachtschicht') document.getElementById('tNacht')?.classList.add('active'); }
+
+    function onAnlageChange(v) {
+        document.getElementById('ftBox').style.display = v && v.startsWith("PUR") ? "block" : "none";
+        let comDiv = document.getElementById('comTracker');
+        comDiv.style.display = v === "COM" ? "block" : "none";
+        let addBtn = document.getElementById('addArtikelBtn');
+        if(v) { addBtn.disabled = false; document.getElementById('artikelContainer').innerHTML = ""; addArtikel(); } 
+        else { addBtn.disabled = true; document.getElementById('artikelContainer').innerHTML = ""; }
+        liveCheck();
+    }
+
+    function addArtikel() {
+        let container = document.getElementById('artikelContainer');
+        let idx = container.children.length;
+        let anlage = document.getElementById('anlage').value;
+        let isCom = anlage === "COM";
+        let div = document.createElement('div'); div.className = 'artikel-row'; div.id = `artikelRow_${idx}`;
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between;"><span style="font-weight:bold;">📌 Artikel</span>${idx>0 ? `<span style="color:var(--danger);cursor:pointer;" onclick="removeArtikel(${idx})">🗑 Löschen</span>` : ''}</div>
+            <input type="text" class="art-name" placeholder="Artikelbezeichnung *" oninput="liveCheck();" style="margin:12px 0;">
+            ${!isCom ? `<div class="grid-2"><div><label>GUT</label><input type="number" class="art-gutteile" placeholder="0" oninput="liveCheck();"></div><div><label>AUS GESAMT</label><input type="number" class="art-ausschuss" placeholder="0" oninput="liveCheck();"></div></div>` : `<div class="grid-2"><div><label>VERBRAUCH (KG)</label><input type="number" class="art-verbrauch" placeholder="0" oninput="trackComTime(); liveCheck();"></div><div><label>AUS GESAMT (KG)</label><input type="number" class="art-ausschuss-kg" placeholder="0" oninput="liveCheck();"></div></div>`}
+            <div id="badgeArea_${idx}"></div>
+            <div class="code-row-container" id="codeWrapper_${idx}" style="display:none;"></div>
+            <div class="code-action-group"><button class="btn-add-aus" onclick="addSpecificCodeRow(${idx}, 'aus')">+ Ausschuss-Code</button><button class="btn-add-stoer" onclick="addSpecificCodeRow(${idx}, 'stoer')">+ Störung</button></div>
+        `;
+        container.appendChild(div);
+        liveCheck();
+    }
+    function removeArtikel(idx) { let row = document.getElementById(`artikelRow_${idx}`); if(row) row.remove(); reindexArtikels(); liveCheck(); trackComTime(); }
+    function reindexArtikels() { Array.from(document.querySelectorAll('.artikel-row')).forEach((div, ni) => { div.id = `artikelRow_${ni}`; let badge = div.querySelector('[id^="badgeArea_"]'); if(badge) badge.id = `badgeArea_${ni}`; let wrap = div.querySelector('[id^="codeWrapper_"]'); if(wrap) wrap.id = `codeWrapper_${ni}`; let btns = div.querySelectorAll('.btn-add-aus, .btn-add-stoer'); btns.forEach(b => { let cat = b.innerText.includes('Ausschuss')?'aus':'stoer'; b.setAttribute('onclick', `addSpecificCodeRow(${ni}, '${cat}')`); }); }); }
+
+    function addSpecificCodeRow(artIdx, category) {
+        let wrapper = document.getElementById(`codeWrapper_${artIdx}`);
+        wrapper.style.display = "block";
+        let codeIdx = wrapper.children.length;
+        let anlage = document.getElementById('anlage').value;
+        let typeKey = anlage?.startsWith("PUR") ? "PUR" : (anlage?.startsWith("IM") || anlage?.startsWith("CIM") ? "Spritz" : "COM");
+        let codeList = (category === 'aus') ? codeCatalog[typeKey].aus : codeCatalog[typeKey].stoer;
+        let rowDiv = document.createElement('div'); rowDiv.className = `code-row ${category}-type`; rowDiv.id = `codeRow_${artIdx}_${codeIdx}`;
+        rowDiv.innerHTML = `<select class="code-select" onchange="handleSonstigeField(${artIdx}, ${codeIdx}, this.value)"><option value="">-- wählen --</option>${codeList.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+                            <input type="number" class="code-wert" placeholder="${category === 'aus' ? 'Menge' : 'Min'}" oninput="liveCheck();">
+                            <span class="remove-row-btn" onclick="removeCodeRow(${artIdx}, ${codeIdx})">❌</span>`;
+        let sonstigeInput = document.createElement('input'); sonstigeInput.type = "text"; sonstigeInput.className = "sonstige-input"; sonstigeInput.id = `sonstige_${artIdx}_${codeIdx}`; sonstigeInput.placeholder = "Grund manuell...";
+        wrapper.appendChild(rowDiv); wrapper.appendChild(sonstigeInput);
+        liveCheck();
+    }
+    function removeCodeRow(artIdx, codeIdx) { let r = document.getElementById(`codeRow_${artIdx}_${codeIdx}`); let s = document.getElementById(`sonstige_${artIdx}_${codeIdx}`); if(r) r.remove(); if(s) s.remove(); liveCheck(); }
+    function handleSonstigeField(artIdx, codeIdx, val) { let inp = document.getElementById(`sonstige_${artIdx}_${codeIdx}`); if(inp) inp.style.display = val === "Sonstige" ? "block" : "none"; liveCheck(); }
+    function trackComTime() { if(document.getElementById('anlage').value !== "COM") return; let total = 0; document.querySelectorAll('.art-verbrauch').forEach(i => total += parseFloat(i.value) || 0); let min = Math.round(total * 1.5); let tracker = document.getElementById('comTracker'); if(min > 480) tracker.innerHTML = `⚠️ COM Konto: ${min} / 480 Min (Überschritten!)`; else tracker.innerHTML = `⏱️ COM Konto: ${min} / 480 Min`; }
+
+    function liveCheck() {
+        let anlage = document.getElementById('anlage').value;
+        let datum = document.getElementById('datum').value;
+        let valid = datum && anlage && selectedStaff.length > 0 && document.querySelectorAll('.artikel-row').length > 0;
+        document.querySelectorAll('.artikel-row').forEach((row, rIdx) => {
+            let name = row.querySelector('.art-name').value.trim();
+            if(!name) valid = false;
+            let ausschussTotal = anlage === "COM" ? (parseFloat(row.querySelector('.art-ausschuss-kg')?.value) || 0) : (parseFloat(row.querySelector('.art-ausschuss')?.value) || 0);
+            let sumCodes = 0, hasEmpty = false;
