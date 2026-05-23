@@ -1,4 +1,4 @@
-const scriptURL = "YOUR_GOOGLE_SCRIPT_URL";
+const scriptURL = "https://script.google.com/macros/s/AKfycbwZ0UFFQKatCJNMZ9p2rwkl4mbpqfC_RZ7KwDxBsSI-ZQ1JGQZTnLcLekap48fCFOBG/exec";
 
     liveCheck();
 }
