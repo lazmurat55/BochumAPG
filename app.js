@@ -1,72 +1,109 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbwZ0UFFQKatCJNMZ9p2rwkl4mbpqfC_RZ7KwDxBsSI-ZQ1JGQZTnLcLekap48fCFOBG/exec";
+const stoerungen = [];
 
-    liveCheck();
+const currentDate = new Date();
+
+document.getElementById("currentDate").innerText =
+  currentDate.toLocaleDateString("de-DE");
+
+
+function addStoerung() {
+
+  const typ = document.getElementById("stoerungTyp").value;
+
+  const minuten = document.getElementById("stoerungMinuten").value;
+
+  if (!minuten) {
+    alert("Minuten eingeben");
+    return;
+  }
+
+  const stoerung = {
+    typ,
+    minuten
+  };
+
+  stoerungen.push(stoerung);
+
+  renderStoerungen();
+
+  document.getElementById("stoerungMinuten").value = "";
 }
 
-let debounceTimer;
 
-function debouncedCheck() {
+function renderStoerungen() {
 
-    clearTimeout(debounceTimer);
+  const list = document.getElementById("stoerungList");
 
-    debounceTimer = setTimeout(() => {
-        liveCheck();
-    }, 300);
+  list.innerHTML = "";
+
+  stoerungen.forEach((s, index) => {
+
+    list.innerHTML += `
+      <div class="stoerung-item">
+        ${index + 1}. ${s.typ} - ${s.minuten} Min
+      </div>
+    `;
+  });
 }
 
-function liveCheck() {
 
-    const btn = document.getElementById('mainSendBtn');
+function saveData() {
 
-    let valid = true;
+  const data = {
+    datum: currentDate.toLocaleDateString("de-DE"),
 
-    if(selectedStaff.length === 0) {
-        valid = false;
-    }
+    mitarbeiter:
+      document.getElementById("mitarbeiter").value,
 
-    document.querySelectorAll('.artikel-row').forEach(row => {
+    schicht:
+      document.getElementById("schicht").value,
 
-        const art = row.querySelector('.art-name').value;
-        const gut = row.querySelector('.gut').value;
+    anlage:
+      document.getElementById("anlage").value,
 
-        const status = row.querySelector('.status');
+    formtraeger:
+      document.getElementById("formtraeger").value,
 
-        if(!art || !gut) {
+    compound:
+      document.getElementById("compound").value,
 
-            valid = false;
+    werkzeug:
+      document.getElementById("werkzeug").value,
 
-            status.innerHTML = `
-                <div class="status-error">
-                    Daten fehlen
-                </div>
-            `;
+    artikelnummer:
+      document.getElementById("artikelnummer").value,
 
-        } else {
+    gutteile:
+      document.getElementById("gutteile").value,
 
-            status.innerHTML = `
-                <div class="status-ok">
-                    OK
-                </div>
-            `;
-        }
+    ausschuss:
+      document.getElementById("ausschuss").value,
 
-    });
+    werkzeugwechsel:
+      document.getElementById("werkzeugwechsel").value,
 
-    btn.disabled = !valid;
+    stoerungen
+  };
 
-    btn.innerText = valid
-        ? 'Daten senden'
-        : 'Formular prüfen';
+
+  localStorage.setItem(
+    "schichtBData",
+    JSON.stringify(data)
+  );
+
+  console.log(data);
+
+  alert("Daten gespeichert");
 }
 
-async function processReport() {
 
-    if(isSending) return;
+function resetForm() {
 
-    isSending = true;
+  location.reload();
+}
 
-    const btn = document.getElementById('mainSendBtn');
 
-    btn.disabled = true;
+if ("serviceWorker" in navigator) {
 
-    btn.innerText =
+  navigator.serviceWorker.register("service-worker.js");
+}
