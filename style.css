@@ -1,16 +1,4 @@
 :root {
-    padding: 8px 12px;
-    border-radius: 30px;
-}
-
-.artikel-row {
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 20px;
-}
-
-.code-row {
     display: flex;
     gap: 10px;
     margin-top: 10px;
